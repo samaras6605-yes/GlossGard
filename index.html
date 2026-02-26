@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GlossGard | The Revolutionary Utility Case</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400;700;800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
+
+        :root {
+            --bg-gradient: linear-gradient(135deg, #FF1493 0%, #FF69B4 45%, #FFD700 100%);
+            --hot-pink: #FF1493;
+            --text: #222;
+            --white: #ffffff;
+        }
+
+        /* Essential: Hide default cursor */
+        * { box-sizing: border-box; scroll-behavior: smooth; }
+        
+        body { 
+            margin: 0; 
+            font-family: 'Playfair Display', serif; 
+            font-size: 1.15rem; 
+            line-height: 1.6;
+            color: var(--text); 
+            background: var(--bg-gradient);
+            background-attachment: fixed;
+            overflow-x: hidden;
+        }
+
+        /* CURSOR FIX: Highest possible z-index */
+        #custom-cursor {
+    	position: fixed;
+   	width: 0; height: 0;
+    	border-left: 8px solid transparent;
+    	border-right: 8px solid transparent;
+    	border-bottom: 18px solid var(--hot-pink);
+    	transform: rotate(-30deg);
+    	pointer-events: none;
+    	z-index: 9999999; 
+    	left: -50px;
+    /* This line is the key: it forces the custom cursor to stay visible */
+    display: block !important; 
+    cursor: none !important;
+	}
+
+/* Ensure the default cursor is ONLY hidden on the body/elements, 
+   not the custom cursor itself */
+	html, body, a, button, div, span, img {
+    	cursor: none !important;
+}
+        /* ANIMATION FIX: Semi-transparent white rising stars */
+        .rising-star {
+            position: fixed;
+            color: rgba(255, 255, 255, 0.6); 
+            pointer-events: none; /* Must be none so cursor works */
+            z-index: 1; 
+            font-size: 1.2rem;
+            text-shadow: 0 0 8px #fff;
+            animation: rise linear infinite;
+        }
+
+        @keyframes rise {
+            0% { transform: translateY(110vh) rotate(0deg); opacity: 0; }
+            20% { opacity: 1; }
+            80% { opacity: 1; }
+            100% { transform: translateY(-20vh) rotate(360deg); opacity: 0; }
+        }
+
+        .nav-star { color: var(--white); font-size: 0.8rem; margin: 0 10px; }
+
+        h1, h2, h3, nav a, .btn, label, select, .logo-placeholder {
+            font-family: 'Lexend', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.92);
+            padding: 15px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 20, 147, 0.1);
+        }
+
+        .logo-placeholder {
+            width: 200px; height: 50px;
+            background: var(--white);
+            border: 2px solid var(--hot-pink);
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 8px; font-size: 1.2rem; color: var(--hot-pink);
+        }
+
+        nav { display: flex; align-items: center; }
+        nav a { text-decoration: none; color: var(--text); font-size: 0.85rem; transition: 0.3s; }
+        nav a:hover { color: var(--hot-pink); }
+
+        .header-right { display: flex; align-items: center; }
+
+        .cart-icon { cursor: pointer; font-size: 1.4rem; position: relative; margin-left: 20px; }
+        .cart-count {
+            position: absolute; top: -8px; right: -10px;
+            background: var(--hot-pink); color: white;
+            font-size: 0.7rem; padding: 2px 6px; border-radius: 50%;
+        }
+
+        /* INQUIRIES SIDEBAR STYLES */
+        .help-sidebar {
+            position: fixed; top: 0; right: -500px; width: 450px; height: 100%;
+            background: var(--white); z-index: 4000; transition: 0.4s ease;
+            box-shadow: -10px 0 30px rgba(0,0,0,0.15);
+            padding: 40px; overflow-y: auto;
+        }
+        .help-sidebar.active { right: 0; }
+        .help-category { margin-bottom: 30px; }
+        .help-category h3 { font-size: 1.1rem; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px; }
+        .help-category p { font-size: 0.9rem; margin: 10px 0; color: #444; cursor: pointer; transition: 0.2s; }
+        .help-category p:hover { color: var(--hot-pink); text-decoration: underline; }
+        .contact-box-help { background: #f9f9f9; padding: 20px; border-radius: 15px; margin-top: 15px; }
+        .contact-box-help b { display: block; color: var(--hot-pink); margin-bottom: 5px; }
+
+        .cart-sidebar {
+            position: fixed; top: 0; right: -400px; width: 400px; height: 100%;
+            background: var(--white); z-index: 3000; transition: 0.4s ease;
+            box-shadow: -10px 0 30px rgba(0,0,0,0.15);
+            padding: 40px; display: flex; flex-direction: column;
+        }
+        .cart-sidebar.active { right: 0; }
+        .sidebar-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 2999; display: none;
+        }
+        .sidebar-overlay.active { display: block; }
+
+        .section { padding: 80px 10%; position: relative; z-index: 2; }
+        .aesthetic-star { position: absolute; color: var(--hot-pink); opacity: 0.4; font-size: 1.5rem; pointer-events: none; }
+
+        .click-sparkle {
+            position: fixed;
+            color: var(--hot-pink);
+            pointer-events: none;
+            z-index: 9999;
+            font-size: 1rem;
+            animation: sparkleOut 0.8s ease-out forwards;
+        }
+
+        @keyframes sparkleOut {
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+            100% { transform: translate(var(--tx), var(--ty)) scale(1.5); opacity: 0; }
+        }
+
+        .content-box {
+            background: var(--white);
+            border-radius: 40px;
+            padding: 60px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+            margin-bottom: 50px;
+            position: relative;
+        }
+
+        /* THE JUICY BREATHE EFFECT */
+	.product-card {
+    		background: rgba(255, 255, 255, 0.85);
+    		padding: 30px;
+		border-radius: 35px;
+		text-align: center;
+    		border: 1px solid rgba(255, 255, 255, 0.5);
+    		backdrop-filter: blur(12px);
+    
+    /* Smooth transition for all properties */
+ 		transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+ 		position: relative;
+		overflow: hidden;
+}
+
+.product-card:hover {
+    transform: translateY(-12px) scale(1.03);
+    background: #ffffff;
+    box-shadow: 0 20px 40px rgba(255, 20, 147, 0.2); /* Pink glow */
+    border-color: var(--hot-pink);
+    animation: breathe 3s ease-in-out infinite; /* The continuous breathe */
+}
+
+/* THE BREATHE KEYFRAMES */
+@keyframes breathe {
+    0% { box-shadow: 0 20px 40px rgba(255, 20, 147, 0.15); }
+    50% { box-shadow: 0 25px 50px rgba(255, 20, 147, 0.35); }
+    100% { box-shadow: 0 20px 40px rgba(255, 20, 147, 0.15); }
+}
+
+/* MAKE THE IMAGE JUMP SLIGHTLY TOO */
+.product-card:hover .img-placeholder {
+    transform: scale(1.05);
+    transition: transform 0.4s ease;
+    color: var(--hot-pink);
+}
+
+        .shop-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; }
+
+        .img-placeholder {
+            width: 100%; height: 350px; background: #f9f9f9; border-radius: 25px;
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 20px; border: 1px solid #eee; color: #bbb; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), color 0.4s ease;
+        }
+
+        .btn { display: block; width: 100%; padding: 16px; border-radius: 12px; border: none; cursor: pointer; margin-top: 10px; font-size: 0.85rem; position: relative; overflow: hidden; }
+        .btn-main { background: var(--hot-pink); color: white; transition: 0.3s; }
+        .btn-main:hover { filter: brightness(1.1); transform: scale(1.02); }
+/* --- THE FEEDBACK BUTTON EXPANSION --- */
+.btn-feedback {
+    background: #fff; 
+    color: var(--hot-pink); 
+    border: 1.5px solid var(--hot-pink); 
+    margin: 0;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+    letter-spacing: 0.5px;
+}
+
+.btn-feedback:hover {
+    transform: scale(1.05); 
+    padding-left: 26px;     
+    padding-right: 26px;    
+    letter-spacing: 1.0px;  
+    background: #fff0f6;    
+    box-shadow: 0 10px 20px rgba(255, 20, 147, 0.15);
+}
+        .modal {
+            display: none; position: fixed; z-index: 5000; left: 0; top: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); align-items: center; justify-content: center;
+        }
+        .modal-content {
+            background: var(--white); width: 90%; max-width: 950px; padding: 50px; border-radius: 45px;
+            display: flex; gap: 40px; position: relative; flex-wrap: wrap;
+        }
+
+        .color-dot { width: 25px; height: 25px; border-radius: 50%; cursor: pointer; border: 1px solid #ddd; transition: 0.2s; }
+        .color-dot:hover { transform: scale(1.2); border-color: var(--hot-pink); }
+        
+        #checkoutView input, .discount-box input { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #ddd; }
+        
+        .remove-item { color: #ccc; cursor: pointer; font-size: 1.2rem; transition: 0.2s; }
+        .remove-item:hover { color: var(--hot-pink); }
+
+        .subtotal-row {
+            display: flex; justify-content: space-between; font-weight: 800;
+            font-size: 1.2rem; margin: 20px 0 10px 0; border-top: 2px solid #f9f9f9; padding-top: 15px;
+        }
+/* THE SECRET SOCIAL BUBBLE */
+/* THE SECRET SOCIAL BUBBLE - UPDATED */
+#promo-bubble {
+    position: fixed;
+    bottom: 30px;
+    left: 30px;
+    background: #ffe4f0;
+    color: var(--hot-pink);
+    padding: 15px 25px;
+    border-radius: 50px;
+    font-family: 'Lexend', sans-serif;
+    font-weight: 800;
+    font-size: 0.9rem;
+    z-index: 999999;
+    box-shadow: 0 10px 25px rgba(255, 20, 147, 0.2);
+    border: 2px solid white;
+    cursor: help;
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    /* THE FIXES ARE HERE */
+    width: 120px; /* Starting width */
+    height: 50px; /* Fixed height keeps it consistent while stretching */
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    overflow: hidden;
+    white-space: nowrap; 
+    animation: bubbleWiggle 5s infinite;
+}
+
+/* Hover States - Dynamic Stretching */
+#promo-bubble:hover {
+    background: #ffffff;
+    width: 600px; /* Set this to be wide enough for your longest message */
+    /* OR use width: max-content; if you want it to be exactly the text length */
+    padding: 15px 30px;
+}
+
+/* Updated Text Logic for smoother stretching */
+.text-psst {
+    transition: all 0.3s ease;
+    flex-shrink: 0; /* Prevents PSST from squishing */
+}
+
+.text-social {
+    position: absolute;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s ease;
+    font-size: 0.8rem;
+    width: 100%;
+    text-align: center;
+    padding: 0 20px;
+}
+
+/* Hover States */
+#promo-bubble:hover {
+    background: #ffffff;
+    min-width: 420px; 
+    padding: 15px 30px;
+}
+
+#promo-bubble:hover .text-psst {
+    opacity: 0;
+    transform: translateY(-20px);
+}
+
+#promo-bubble:hover .text-social {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* The Attention Grabber */
+@keyframes bubbleWiggle {
+    0%, 90% { transform: rotate(0); }
+    92% { transform: rotate(5deg); }
+    94% { transform: rotate(-5deg); }
+    100% { transform: rotate(0); }
+}
+    </style>
+</head>
+<body>
+
+<div id="custom-cursor"></div>
+
+<span class="aesthetic-star" style="top:12%; left:4%;">✦</span>
+<span class="aesthetic-star" style="top:40%; right:7%;">✦</span>
+<span class="aesthetic-star" style="bottom:15%; left:10%;">✦</span>
+<span class="aesthetic-star" style="top:65%; left:2%;">✦</span>
+<span class="aesthetic-star" style="top:85%; right:5%;">✦</span>
+
+<header style="display: flex; justify-content: space-between; align-items: center; padding: 15px 5%;">
+    
+    <div class="logo-placeholder" style="border: none; background: transparent; position: relative; width: 200px; margin: 0;">
+        <img src="glossgard-logo.png" alt="GlossGard Logo" style="position: absolute; height: 100px; width: auto; top: -35px; left: 0; object-fit: contain;">
+    </div>
+
+    <nav style="flex: 1; display: flex; justify-content: center; align-items: center; gap: 5px;">
+        <a href="#home">HOME</a> <span class="nav-star">✦</span>
+        <a href="#shop">SHOP</a> <span class="nav-star">✦</span>
+        <a href="#about">OUR STORY</a>
+    </nav>
+
+    <div class="header-right" style="width: 200px; display: flex; justify-content: flex-end; align-items: center;">
+        <a href="javascript:void(0)" onclick="toggleHelp()" style="text-decoration:none; color:var(--text); font-family:'Lexend'; font-size:0.85rem; font-weight:700;">INQUIRIES</a>
+        <div class="cart-icon" onclick="toggleSidebar()">🛒 <span class="cart-count" id="cartCount">0</span></div>
+    </div>
+</header>
+
+<div class="help-sidebar" id="helpSidebar">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 30px;">
+        <h2 style="margin:0; color: var(--hot-pink); font-family: 'Lexend';">INQUIRIES</h2>
+        <span style="font-size: 2rem; cursor:pointer;" onclick="toggleHelp()">&times;</span>
+    </div>
+
+    <div class="help-category">
+        <h3>Quick Assists</h3>
+        <p>Will my favorite lip liner fit the Precision Mold?</p>
+        <p>Does the case protect the camera lens?</p>
+        <p>What is the 'Glow Guarantee'?</p>
+    </div>
+
+    <div class="help-category">
+        <h3>Returns & Glow-ups</h3>
+        <p>What is GlossGard's returns policy?</p>
+        <p>How do I return my GlossGard order?</p>
+        <p>Where is my refund?</p>
+        <p><b>View all</b></p>
+    </div>
+
+    <div class="help-category">
+        <h3>Dispatch & Delivery</h3>
+        <p>Shipping timelines for new drops</p>
+        <p>How do I get free delivery?</p>
+        <p>Do you ship internationally?</p>
+        <p><b>View all</b></p>
+    </div>
+
+    <div class="help-category">
+        <h3>Orders & Payment</h3>
+        <p>Where is my GlossGard order?</p>
+        <p>Can I change my phone model after ordering?</p>
+        <p>Payment options (Apple Pay, AfterPay, etc.)</p>
+    </div>
+
+    <div class="help-category">
+        <h3>Company Info</h3>
+        <p>Our Precision-Molding Technology</p>
+        <p>Is GlossGard a new brand?</p>
+        <p>Sustainability: Our Bio-Plastic Mission</p>
+    </div>
+
+    <div class="help-category">
+        <h3>Contact Us</h3>
+        <div class="contact-box-help">
+            <b>Chat with us</b>
+            <p>Order Support & Styling Advice<br>7 am - 11 pm ET<br>7 days a week</p>
+        </div>
+        <div class="contact-box-help">
+            <b>Email Us</b>
+            <p>hello@glossgard.com<br>Response time: < 2 hours</p>
+        </div>
+        <div class="contact-box-help">
+            <b>Call the Studio</b>
+            <p>1-800-GLOSS-GARD<br>10 am – 7 pm ET<br>Monday – Friday</p>
+        </div>
+    </div>
+</div>
+
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebars()"></div>
+
+<main>
+    <section id="home" class="section">
+    <div class="content-box">
+        <div style="display: flex; gap: 60px; align-items: center; flex-wrap: wrap;">
+            
+            <div style="flex: 1.5; min-width: 300px;">
+    <h1 style="color: var(--hot-pink); font-size: 3.5rem; margin: 0;">Your Essentials, Guarded.</h1>
+    <p style="font-style: italic; margin: 25px 0;">
+        The original GlossGard. Sophisticated protection precision-molded to hold your beauty essentials. No more digging, just glowing. We believe that glow doesn't have to cost the Earth, so every GlossGard is crafted from high-grade, non-toxic liquid silicone and is shipped in 100% recyclable, compostable packaging made from recycled fibers.
+    </p>
+    <button class="btn btn-main" onclick="openModal('GlossGard Classic', 39.99)" style="width: 250px; margin-bottom: 20px;">ORDER NOW</button>
+
+    <div style="margin-top: 30px; padding: 20px; border-top: 1px solid #eee;">
+        <p style="font-size: 0.9rem; font-family: 'Lexend'; color: #555; margin-bottom: 15px;">
+            <b>A note from our founder:</b> We’re a new brand and we’d love your feedback!
+        </p>
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+            <button class="btn btn-feedback" onclick= "openFeedbackModal()" style="background: #fff; color: var(--hot-pink); border: 1.5px solid var(--hot-pink); margin: 0;" onclick="openFeedbackModal()">
+                SEND FEEDBACK / SUGGEST A DREAM CASE
+            </button>
+            <button class="btn btn-main" style="margin: 0;" onclick="openEmailModal()">
+                SIGN UP FOR NEW DROPS
+            </button>
+        </div>
+    </div>
+</div>
+
+            <div style="flex: 1; min-width: 300px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                    <img src="home-page-image.png" alt="GlossGard Hero" style="width: 100%; max-width: 450px; height: auto; object-fit: contain;" onerror="this.src='https://images.unsplash.com/photo-1601362840469-51e4d8d59085?auto=format&fit=crop&q=80&w=600'">
+                    
+                    <div class="press-section">
+                        <p style="font-family:'Lexend'; font-size:0.8rem; letter-spacing:2px; color:#999; margin-bottom:10px; font-weight:800;">     AS SEEN ON</p>
+                        <div class="press-logos">
+                            <span style="font-family:'Playfair Display'; font-weight:900; font-size:1.2rem;">VOGUE</span>
+                            <span style="font-family:'Lexend'; font-weight:800; font-size:0.8rem;">TikTok</span>
+                            <span style="font-family:'Playfair Display'; font-style:italic; font-weight:700; font-size:1.1rem;">Cosmo</span>
+                        </div>
+            </div>
+    </div>
+</section>
+
+    <section id="shop" class="section">
+        <h2 style="text-align: center; font-size: 2.5rem; color: var(--white); text-shadow: 2px 2px 8px rgba(0,0,0,0.1); margin-bottom: 40px;">The Collection</h2>
+        <div class="shop-grid">
+            <div class="product-card">
+                <span class="aesthetic-star" style="top:10px; right:10px; font-size:1rem;">✦</span>
+                <div class="img-placeholder">
+        <img src="main-product-image.png" alt="GlossGard Classic" style="width: 100%; height: 100%; object-fit: contain;">
+    </div>
+                <h3>GlossGard Classic</h3>
+                <p style="font-weight: bold;">$39.99</p>
+                <button class="btn btn-main" onclick="openModal('GlossGard Classic', 39.99)">SELECT OPTIONS</button>
+            </div>
+            <div class="product-card">
+                <span class="aesthetic-star" style="top:10px; left:10px; font-size:1rem;">✦</span>
+                <div class="img-placeholder">
+		<img src="the-decorator.jpg" alt="The Decorator" style="width: 100%; height: 100%; object-fit: contain;">
+                </div>
+                <h3>The Decorator</h3>
+                <p style="font-weight: bold;">$44.99</p>
+                <button class="btn btn-main" onclick="openModal('The Decorator', 44.99)">SELECT OPTIONS</button>
+            </div>
+            <div class="product-card">
+                <div class="img-placeholder"> 
+		<img src="the-glam-pouch.png" alt="The Glam Pouch" style="width: 100%; height: 100%; object-fit: contain;">
+    </div>
+    <h3>The Glam Pouch</h3>
+    <p style="font-weight: bold;">$49.99</p>
+    <button class="btn btn-main" onclick="openModal('The Glam Pouch', 49.99)">SELECT OPTIONS</button>
+</div>
+
+            <div class="product-card">
+                <div class="img-placeholder">
+		<img src="the-vault.png" alt="The Vault" style="width: 100%; height: 100%; object-fit: contain;">
+                </div>
+                <h3>The Vault</h3>
+                <p style="font-weight: bold;">$42.99</p>
+                <button class="btn btn-main" onclick="openModal('The Vault', 42.99)">SELECT OPTIONS</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="about" class="section">
+        <div class="content-box" style="text-align: center;">
+            <span class="aesthetic-star" style="bottom:20px; right:20px;">✦</span>
+            <span class="aesthetic-star" style="top:20px; left:20px;">✦</span>
+            <h2 style="font-size: 2.5rem; color: var(--hot-pink);">Our Story</h2>
+            <div style="max-width: 850px; margin: 0 auto; text-align: left; font-size: 1.1rem;">
+                <p>It started with digging in my bag. We’ve all been there standing in the middle of a crowded room, frantically looking through receipts and old gum wrappers, just to find that one specific lip liner because you just ate and need to touch up. It was really inconvenient and it was NOT aesthetic...</p>
+                <p>Today, your phone is the one thing that never leaves your hand. It’s your camera, your wallet, your entertainment, and your connection to the world. So I realized.. <i>why aren't your most vital beauty essentials right there with it?</i></p>
+                <p>Made from the ambition of a 15-year-old founder, this new product is where aesthetic protection for your phone connects with convenient utility. The precision-engineered molds came from months of prototyping, and they're designed to secure your essential glosses and liners effortlessly. I didn't just want to make a phone case, I wanted a survival kit for anyone on the go.</p>
+                <p>Today, GlossGard is it's own unique brand. Though fairly new, thanks to all the love and support we've gotten, these cases are helping thousands of people keep their gloss within arm's reach. Because you should be focused on making memories, not digging for your lipliner.</p>
+		<p><strong>— Samara Sheikh ❤ </strong><br>
+		<i>Founder & CEO</i></p>
+            </div>
+        </div>
+    </section>
+</main>
+
+<div class="cart-sidebar" id="cartSidebar">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 30px;">
+        <h2 style="margin:0; color: var(--hot-pink);">YOUR BAG <span class="nav-star">✦</span></h2>
+        <span style="font-size: 2rem; cursor:pointer;" onclick="toggleSidebar()">&times;</span>
+    </div>
+    <div id="sidebarContent" style="flex:1; overflow-y:auto;">
+        <p id="emptyMsg">Your bag is empty.</p>
+        <div id="cartItemsList"></div>
+    </div>
+    <div id="sidebarFooter" style="display:none;">
+        <div class="subtotal-row">
+            <span>SUBTOTAL</span>
+            <span id="cartSubtotal">$0.00</span>
+        </div>
+        <div class="discount-box">
+            <label style="font-size: 0.7rem; color: #888; font-family: 'Lexend';">DISCOUNT CODE</label>
+            <input type="text" placeholder="Enter code here...">
+        </div>
+        <button class="btn btn-main" onclick="showCheckout()">CHECK OUT</button>
+    </div>
+    <div id="checkoutView" style="display:none; padding-top: 20px;">
+        <h3 style="color:var(--hot-pink); margin-top:0;">PAYMENT</h3>
+        <input type="text" placeholder="Cardholder Name">
+        <input type="text" placeholder="Card Number">
+        <div style="display:flex; gap:10px;"><input type="text" placeholder="MM/YY"><input type="text" placeholder="CVV"></div>
+        <button class="btn btn-main" onclick="alert('Order Placed!')">PLACE ORDER</button>
+        <button class="btn" style="background:none; color:#888;" onclick="backToCart()">← Back</button>
+    </div>
+</div>
+
+<div id="productModal" class="modal">
+    <div class="modal-content">
+        <span class="aesthetic-star" style="top:10px; left:10px; font-size:1.2rem; opacity:0.8;">✦</span>
+        <span style="position:absolute; right:30px; top:20px; font-size:2rem; cursor:pointer;" onclick="closeModal()">&times;</span>
+        <div id="modalImage" class="img-placeholder" style="flex:1; min-width:300px; background:white;">[ IMAGE ]</div>
+        <div style="flex:1; min-width:300px;">
+            <h2 id="modalTitle" style="margin:0; color:var(--hot-pink);">Name</h2>
+            <p id="modalPriceDisplay" style="font-size: 1.5rem; margin:10px 0;">$0.00</p>
+            <label style="font-size: 0.75rem;">Select Model:</label>
+            <select id="modelSelect" style="width:100%; padding:10px; border-radius:8px; margin-bottom:15px;">
+                <optgroup label="iPhone 17 Series">
+                    <option>iPhone 17 Pro Max</option><option>iPhone 17 Pro</option><option>iPhone Air</option><option>iPhone 17</option>
+                </optgroup>
+                <optgroup label="iPhone 16 Series">
+                    <option>iPhone 16 Pro Max</option><option>iPhone 16 Pro</option><option>iPhone 16 Plus</option><option>iPhone 16</option><option>iPhone 16e</option>
+                </optgroup>
+                <optgroup label="iPhone 15 Series">
+                    <option>iPhone 15 Pro Max</option><option>iPhone 15 Pro</option><option>iPhone 15 Plus</option><option>iPhone 15</option>
+                </optgroup>
+            </select>
+            <label style="font-size: 0.75rem;">Color: <span id="colorName" style="color:var(--hot-pink);">Tulip</span></label>
+            <div style="display:flex; flex-wrap:wrap; gap:8px; margin:10px 0;">
+                <div class="color-dot" style="background:linear-gradient(to right, #FABFD8, #FC5294);" onclick="updateColor('Tulip')"></div>
+		<div class="color-dot" style="background:#f28c07;" onclick="updateColor('Tangerine')"></div>
+                <div class="color-dot" style="background:linear-gradient(to right, #FF1493, #FFD700);" onclick="updateColor('GlossGradient')"></div>
+		<div class="color-dot" style="background:#f5cbd2;" onclick="updateColor('Blush')"></div>
+                <div class="color-dot" style="background:#fcf4a7;" onclick="updateColor('Sunshine')"></div>
+                <div class="color-dot" style="background:#e4edb4;" onclick="updateColor('Avocado')"></div>
+                <div class="color-dot" style="background:#b4e1ed;" onclick="updateColor('Sky')"></div>
+                <div class="color-dot" style="background:#d5c5eb;" onclick="updateColor('Lavender')"></div>
+                <div class="color-dot" style="background:#ffffff;" onclick="updateColor('Snowy')"></div>
+                <div class="color-dot" style="background:#DBC4A5;" onclick="updateColor('Cookie Dough')"></div>
+                <div class="color-dot" style="background:#333333;" onclick="updateColor('Coal')"></div>
+		<div class="color-dot" style="background:#233761;" onclick="updateColor('Navy')"></div>
+            </div>
+            <button class="btn btn-main" onclick="addToCart()">ADD TO BAG</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let cart = [];
+    let currentColor = "Tulip";
+    let currentProductName="";
+    let currentPrice = 0;
+
+    const cursor = document.getElementById('custom-cursor');
+    document.addEventListener('mousemove', (e) => {
+        // This math aligns the tip of your triangle to your actual mouse point
+        cursor.style.left = (e.clientX - 8) + 'px';
+        cursor.style.top = (e.clientY - 5) + 'px';
+    });
+
+    window.addEventListener('load', () => {
+        for (let i = 0; i < 40; i++) {
+            const star = document.createElement('div');
+            star.className = 'rising-star';
+            star.innerHTML = '✦';
+            star.style.left = Math.random() * 100 + 'vw';
+            star.style.animationDuration = (Math.random() * 10 + 5) + 's';
+            star.style.animationDelay = (Math.random() * 10) + 's';
+            document.body.appendChild(star);
+        }
+    });
+
+    document.addEventListener('mousedown', (e) => {
+        if (e.target.closest('button') || e.target.closest('.color-dot') || e.target.closest('a')) {
+            for (let i = 0; i < 6; i++) {
+                const sparkle = document.createElement('div');
+                sparkle.className = 'click-sparkle';
+                sparkle.innerHTML = '✦';
+                sparkle.style.left = e.clientX + 'px';
+                sparkle.style.top = e.clientY + 'px';
+                const tx = (Math.random() - 0.5) * 200 + 'px';
+                const ty = (Math.random() - 0.5) * 200 + 'px';
+                sparkle.style.setProperty('--tx', tx);
+                sparkle.style.setProperty('--ty', ty);
+                document.body.appendChild(sparkle);
+                setTimeout(() => sparkle.remove(), 800);
+            }
+        }
+    });
+
+    function toggleSidebar() {
+        document.getElementById('cartSidebar').classList.toggle('active');
+        document.getElementById('sidebarOverlay').classList.toggle('active');
+    }
+
+    function toggleHelp() {
+        document.getElementById('helpSidebar').classList.toggle('active');
+        document.getElementById('sidebarOverlay').classList.toggle('active');
+    }
+
+    function closeSidebars() {
+        document.getElementById('cartSidebar').classList.remove('active');
+        document.getElementById('helpSidebar').classList.remove('active');
+        document.getElementById('sidebarOverlay').classList.remove('active');
+    }
+// Make sure these three lines are at the top of your script
+
+    function openModal(name, price) {
+        currentProductName = name; 
+        document.getElementById('productModal').style.display = 'flex';
+        document.getElementById('modalTitle').innerText = name;
+        document.getElementById('modalPriceDisplay').innerText = "$" + price.toFixed(2);
+        currentPrice = price;
+        updateColor('Tulip'); 
+    }
+
+    function closeModal() { 
+        document.getElementById('productModal').style.display = 'none'; 
+    }
+
+    function updateColor(c) {
+        currentColor = c;
+        document.getElementById('colorName').innerText = c;
+        
+        let cleanProduct = currentProductName.toLowerCase().replace(/\s+/g, '-');
+        let cleanColor = c.toLowerCase().replace(/\s+/g, '-');
+        let fileName = cleanProduct + '-' + cleanColor + '.png';
+
+        document.getElementById('modalImage').innerHTML = `
+            <img src="${fileName}" 
+                 style="width: 100%; height: 100%; object-fit: contain;" 
+                 onerror="this.parentElement.innerHTML='<div style=\\'color:#bbb; font-size:0.8rem;\\'>[ Upload: ${fileName} ]</div>'">`;
+    }
+    function addToCart() {
+        cart.push({ name: document.getElementById('modalTitle').innerText, model: document.getElementById('modelSelect').value, color: currentColor, price: currentPrice });
+        updateCartUI();
+        closeModal();
+        toggleSidebar();
+    }
+    function removeFromCart(index) { cart.splice(index, 1); updateCartUI(); }
+    function updateCartUI() {
+        document.getElementById('cartCount').innerText = cart.length;
+        const list = document.getElementById('cartItemsList');
+        const emptyMsg = document.getElementById('emptyMsg');
+        const footer = document.getElementById('sidebarFooter');
+        const subtotalEl = document.getElementById('cartSubtotal');
+        let total = 0;
+        if (cart.length > 0) {
+            emptyMsg.style.display = 'none'; footer.style.display = 'block';
+            list.innerHTML = cart.map((i, index) => {
+                total += i.price;
+                return `<div style="border-bottom:1px solid #eee; padding:15px 0; display:flex; justify-content:space-between; align-items:center;">
+                    <div><b>${i.name}</b><br><small>${i.model} — ${i.color}</small><br><b>$${i.price.toFixed(2)}</b></div>
+                    <span class="remove-item" onclick="removeFromCart(${index})">&times;</span></div>`;
+            }).join('');
+            subtotalEl.innerText = "$" + total.toFixed(2);
+        } else {
+            emptyMsg.style.display = 'block'; footer.style.display = 'none'; list.innerHTML = '';
+        }
+    }
+    function showCheckout() {
+        document.getElementById('sidebarContent').style.display = 'none';
+        document.getElementById('sidebarFooter').style.display = 'none';
+        document.getElementById('checkoutView').style.display = 'block';
+    }
+    function backToCart() {
+        document.getElementById('sidebarContent').style.display = 'block';
+        document.getElementById('sidebarFooter').style.display = 'block';
+        document.getElementById('checkoutView').style.display = 'none';
+    }
+    window.onclick = function(e) { if (e.target.id === 'productModal') closeModal(); }
+
+function openFeedback() {
+    let idea = prompt("We're all ears! What's your dream case idea or feedback for GlossGard?");
+    if (idea) {
+        alert("Omg, thank you! We've received your idea, thanks for helping us grow ❤");
+    }
+}
+
+function handleNotify() {
+    let email = document.getElementById('notifyEmail').value;
+    if (email.includes('@')) {
+        alert("You're on the list. Get ready for any new drops in your inbox ❤");
+        document.getElementById('notifyEmail').value = '';
+    } else {
+        alert("Please enter a valid email address!");
+    }
+}
+
+</script>
+
+<div id="promo-bubble">
+    <span class="text-psst">PSSTTT...</span>
+    <span class="text-social">Follow our Insta & TikTok for our seasonal discount code! ✦ @glossgardcases </span>
+</div>
+
+<footer style="padding: 40px 0; text-align: center;">
+    <p>&copy; 2026 GLOSSGARD UTILITY CO. | ALL RIGHTS RESERVED <span class="nav-star">✦</span></p>
+</footer>
+
+<div id="emailModal" class="modal">
+    <div class="modal-content" style="max-width: 400px; text-align: center; padding: 40px; display: flex; flex-direction: column;">
+        <span style="position:absolute; right:25px; top:15px; font-size:1.5rem; cursor:pointer;" onclick="closeEmailModal()">&times;</span>
+        <h2 style="color: var(--hot-pink); font-family: 'Lexend'; margin-top: 0;">STAY IN THE GLOW</h2>
+        <p style="font-size: 0.9rem;">Drop your email for early access to new colors.</p>
+        <input type="email" id="emailInput" placeholder="yourname@gmail.com" style="width: 100%; padding: 12px; margin: 20px 0; border-radius: 8px; border: 1px solid #ddd; font-family: 'Lexend';">
+        <button class="btn btn-main" onclick="submitEmail()">NOTIFY ME</button>
+    </div>
+</div>
+
+<div id="feedbackModal" class="modal">
+    <div class="modal-content" style="max-width: 450px; text-align: center; padding: 40px; display: flex; flex-direction: column;">
+        <span style="position:absolute; right:25px; top:15px; font-size:1.5rem; cursor:pointer;" onclick="closeFeedbackModal()">&times;</span>
+        <h2 style="color: var(--hot-pink); font-family: 'Lexend'; margin-top: 0;">DREAM CASE IDEAS?</h2>
+        <p style="font-size: 0.9rem;">We're all ears! Tell us what you want to see next.</p>
+        <textarea id="feedbackInput" placeholder="I'd love a case that holds..." style="width: 100%; height: 100px; padding: 12px; margin: 20px 0; border-radius: 8px; border: 1px solid #ddd; font-family: 'Lexend'; resize: none;"></textarea>
+        <button class="btn btn-main" onclick="submitFeedback()">SEND TO US</button>
+    </div>
+</div>
+
+<script>
+// --- EMAIL MODAL FUNCTIONS ---
+function openEmailModal() {
+    document.getElementById('emailModal').style.display = 'flex';
+}
+function closeEmailModal() {
+    document.getElementById('emailModal').style.display = 'none';
+}
+function submitEmail() {
+    let email = document.getElementById('emailInput').value;
+    if(email) {
+        document.getElementById('emailModal').querySelector('.modal-content').innerHTML = `
+            <h2 style="color: var(--hot-pink);">YOU'RE ON THE LIST!</h2>
+            <p>We'll email you at <b>${email}</b> before the next drop.</p>
+            <button class="btn btn-main" onclick="closeEmailModal()">CLOSE</button>
+        `;
+    }
+}
+
+// --- FEEDBACK MODAL FUNCTIONS ---
+function openFeedbackModal() {
+    document.getElementById('feedbackModal').style.display = 'flex';
+}
+function closeFeedbackModal() {
+    document.getElementById('feedbackModal').style.display = 'none';
+}
+function submitFeedback() {
+    let feedback = document.getElementById('feedbackInput').value;
+    if(feedback) {
+        document.getElementById('feedbackModal').querySelector('.modal-content').innerHTML = `
+            <h2 style="color: var(--hot-pink);">THANK YOU!</h2>
+            <p>Just received your idea, we love the vision!</p>
+            <button class="btn btn-main" onclick="closeFeedbackModal()">CLOSE</button>
+        `;
+    }
+}
+
+// Close any modal when clicking background
+window.onclick = function(e) {
+    if (e.target.className === 'modal') {
+        document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+    }
+}
+</script>
+
+</body>
+</html>
